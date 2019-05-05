@@ -9,3 +9,11 @@ RUN apt-get update
 
 # Install Open JDK
 RUN apt-get install -y openjdk-8-jdk
+
+# Install Git
+RUN apt-get install -y git
+
+## Install Ansible
+RUN apt-get install -y software-properties-common
+RUN apt-add-repository -y -u ppa:ansible/ansible
+RUN apt-get install -y ansible
