@@ -1,5 +1,11 @@
-# Start with a base image containing Java runtime
-FROM openjdk:8-jdk-alpine
+# Download base image ubuntu18.04
+FROM ubuntu:18.04
 
 # Add Maintainer Info
-MAINTAINER Vlad Voinov <mogikanensoftware@gmail.com>
+LABEL maintainer="mogikanensoftware@gmail.com"
+
+# Update Ubuntu Software repository
+RUN apt-get update
+
+# Install Open JDK
+RUN apt-get install -y openjdk-8-jdk
