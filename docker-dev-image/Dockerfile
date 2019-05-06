@@ -13,7 +13,10 @@ RUN apt-get install -y openjdk-8-jdk
 # Install Git
 RUN apt-get install -y git
 
-## Install Ansible
+# Install Ansible
 RUN apt-get install -y software-properties-common
 RUN apt-add-repository -y -u ppa:ansible/ansible
 RUN apt-get install -y ansible
+
+#Install Node
+RUN apt-get install -y nodejs && apt-get install -y npm
