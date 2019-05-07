@@ -1,7 +1,5 @@
 package com.github.mogikanen9.demo.rest.client;
 
-import java.util.Objects;
-
 public class Fruit {
 
     private String name;
@@ -32,19 +30,4 @@ public class Fruit {
         this.description = description;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Fruit)) {
-            return false;
-        }
-
-        Fruit other = (Fruit) obj;
-
-        return Objects.equals(other.name, this.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.name);
-    }
 }
