@@ -1,6 +1,12 @@
 version: '3'
 services:
-  web:
+  api:
     image: "mogikanen9-demo/rest-api"
     ports:
      - "8080:8080"
+  client:
+    image: "mogikanen9-demo/rest-client:v7"
+    ports:
+     - "8082:8082"
+    depends_on: 
+     - api
