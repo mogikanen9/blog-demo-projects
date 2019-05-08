@@ -1,0 +1,11 @@
+insert into person(first_name, last_name) values ('Yakov', 'Fain');
+insert into person(first_name, last_name) values ('Brian', 'Goetz');
+insert into person(first_name, last_name) values ('Martin', 'Fowler');
+insert into person(first_name, last_name) values ('Sam', 'Newman');
+insert into person(first_name, last_name) values ('Tom', 'DeMarco');
+insert into person(first_name, last_name) values ('Rober', 'C. Martin');
+insert into person(first_name, last_name) values ('Rajesh', 'RV');
+insert into person(first_name, last_name) values ('Noel', 'Markham');
+insert into person(first_name, last_name) values ('Tomek', 'Kaczanowski');
+insert into person(first_name, last_name) values ('Walter', 'Isaacson');
+insert into person(first_name, last_name) values ('Stoyan', 'Stefanov');
