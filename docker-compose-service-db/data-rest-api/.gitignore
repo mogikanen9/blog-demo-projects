@@ -27,9 +27,7 @@ hs_err_pid*
 .project
 bin
 .settings
-
-client/node_modules
-client/dist/assets/bundle.min.js
+target
 
 build
 .vscode
