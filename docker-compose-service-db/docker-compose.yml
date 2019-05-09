@@ -11,7 +11,7 @@ services:
     build:
       context: ./data-rest-api
       dockerfile: Dockerfile
-    image: mogikanen9-demo/data-rest-people:v1
+    image: mogikanen9-demo/data-rest-people:v2
     ports:
      - "8090:8080"
     depends_on: 
