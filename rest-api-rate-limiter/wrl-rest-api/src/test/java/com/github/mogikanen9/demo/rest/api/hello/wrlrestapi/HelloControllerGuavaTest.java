@@ -1,35 +1,47 @@
 package com.github.mogikanen9.demo.rest.api.hello.wrlrestapi;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.reactive.server.WebTestClient;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class HelloControllerGuavaTest{
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
 
-	@Autowired
-	private TestRestTemplate restTemplate;
+public class HelloControllerGuavaTest {
 
-    @Test
-    public void testPing(){
-        String body = this.restTemplate.getForObject("/api/hello/ping", String.class);
-		assertThat(body).isEqualTo("pong");
-    }
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
+        ExecutorService eService = Executors.newFixedThreadPool(20);
 
-    @Test
-    public void testPing5RPS(){
-        //ExecutorService eService = 
-        String body = this.restTemplate.getForObject("/api/hello/ping", String.class);
-		assertThat(body).isEqualTo("pong");
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setReadTimeout(2000);
+        RestTemplate client = new RestTemplate(factory);
+
+        List<Future<String>> tasks = new ArrayList<>();
+
+        for (int i = 0; i < 20; i++) {
+            Future<String> task = eService.submit(() -> {
+                String body = client.getForObject("http://localhost:8080/api/hello/ping", String.class);
+                assertThat(body).isEqualTo("pong");
+                return body;
+            });
+            tasks.add(task);
+        }
+
+        System.out.println("all tasks created/scheduled");
+
+        for (Future<String> task : tasks) {
+            String respBody = task.get();
+            System.out.println(String.format("respBody->%s", respBody));
+        }
+
+        System.out.println("all requests submitted");
+
+        eService.shutdown();
+
     }
 }
