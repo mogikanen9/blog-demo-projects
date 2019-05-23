@@ -17,7 +17,7 @@ public class HelloControllerGuava {
     @GetMapping("/ping")
     public ResponseEntity<String> ping() {
 
-        //emulate some work for half a sec
+        //emulate some work
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
