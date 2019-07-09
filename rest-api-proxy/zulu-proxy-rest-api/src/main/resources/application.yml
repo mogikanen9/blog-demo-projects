@@ -1,0 +1,7 @@
+server:
+  port: 8080
+zuul:
+  routes:
+    simpleHello:
+      path: /MyWebSite/greeting/simple/**
+      url: http://localhost:8080/greeting/simple

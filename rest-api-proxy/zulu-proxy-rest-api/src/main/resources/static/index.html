@@ -10,14 +10,20 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script>
         var serverUrl = 'http://localhost:8080/MyWebSite';
+        //var serverUrl = 'http://localhost:8080';
+        console.log("serverUrl->", serverUrl);
+
         $(document).ready(function () {
 
             $("#btnSimple").click(function (event) {
-                alert("Event Simple");
-            });
+                
+                var name = $("#simpleHelloName").val();
+                console.log("simpleHelloName->", name);
 
-            $("#btnAdvanced").click(function (event) {
-                alert("Event Advanced");
+                $.get(serverUrl + "/greeting/simple/" + name, function (data) {
+                    $("#simpleHelloResult").html(data);
+                });
+                
             });
 
         });
@@ -30,11 +36,12 @@
         <h3> Misc Hello Buttons</h3>
     </div>
     <div>
+        <input type="text" id="simpleHelloName" />
         <button id="btnSimple">Simple Hello</button>
     </div>
-    <div>
-        <button id="btnAdvanced">Advanced Hello</button>
+    <div id="simpleHelloResult">
     </div>
+ 
 </body>
 
 </html>
