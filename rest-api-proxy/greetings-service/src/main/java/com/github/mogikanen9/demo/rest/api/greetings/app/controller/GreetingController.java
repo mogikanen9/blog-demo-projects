@@ -1,4 +1,4 @@
-package com.github.mogikanen9.demo.rest.api.proxy.app.controller;
+package com.github.mogikanen9.demo.rest.api.greetings.app.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,4 +13,5 @@ public class GreetingController{
     public String hi(@PathVariable String name){
         return String.format("Hello, %s!", name);
     }
+
 }
