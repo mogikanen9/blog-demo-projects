@@ -28,8 +28,11 @@ public class HelloControllerResilience4J {
 
     public void initRateLimiter() {
 
-        RateLimiterConfig config = RateLimiterConfig.custom().limitRefreshPeriod(Duration.ofMillis(1)).limitForPeriod(1)
-                .timeoutDuration(Duration.ofSeconds(5)).build();
+        // limit is 2 requests (limitForPeriod) per period (limitRefreshPeriod = 1 sec)
+        RateLimiterConfig config = RateLimiterConfig.custom()
+                .limitRefreshPeriod(Duration.ofSeconds(1))
+                .limitForPeriod(2)
+                .timeoutDuration(Duration.ofSeconds(1)).build();
 
         // Create registry
         RateLimiterRegistry rateLimiterRegistry = RateLimiterRegistry.of(config);
