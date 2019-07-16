@@ -16,6 +16,13 @@ public class BookParser implements Parser {
     @Override
     public void parse() throws ParserException {
         log.info(String.format("Parsing sourceFile->%s", sourceFile.toString()));
+        //emulate some work
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     public Book praseLine(String line) {

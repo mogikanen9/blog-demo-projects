@@ -6,19 +6,20 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public class FileScanner implements Scanner {
 
     private Path srcFolder;
 
-    public FileScanner(Path srcFolder) {
-        this.srcFolder = srcFolder;
-    }
+    private int limit;
 
     @Override
     public List<Path> listAll() throws ScannerException {
 
         try {
-            return Files.list(srcFolder).limit(10).collect(Collectors.toList());
+            return Files.list(srcFolder).limit(limit).collect(Collectors.toList());
         } catch (IOException e) {
             throw new ScannerException(e.getMessage(), e);
         }
