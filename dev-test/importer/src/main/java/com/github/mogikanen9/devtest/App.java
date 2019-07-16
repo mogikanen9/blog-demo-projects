@@ -22,18 +22,18 @@ public class App {
     
         ExecutorService bookExecutor = Executors.newFixedThreadPool(2);
 
-        Consumer<Path> bookFileParse = (path) -> {
-            bookExecutor.submit(()-> new BookParser(path).parse());           
+        Consumer<Path> bookFileParser = (path) -> {
+            bookExecutor.submit(()-> new BookParser(path,",","'").parse());           
         };
 
 
-        Runnable importBooks = () -> {
+        Runnable bookImporter = () -> {
             log.info("Importing books...");
-            new FileScanner(Paths.get("c://temp"), 10).listAll().stream().forEach(bookFileParse);
+            new FileScanner(Paths.get("c://temp"), 10).listAll().stream().forEach(bookFileParser);
         };
 
         ScheduledExecutorService srcScanner = Executors.newSingleThreadScheduledExecutor();
-        srcScanner.scheduleWithFixedDelay(importBooks,10, 30, TimeUnit.SECONDS);
+        srcScanner.scheduleWithFixedDelay(bookImporter,10, 30, TimeUnit.SECONDS);
        
     }
 
