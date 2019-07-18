@@ -1,12 +1,11 @@
 package com.github.mogikanen9.devtest.parser;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.github.mogikanen9.devtest.domain.Book;
 
@@ -20,6 +19,7 @@ public class BookParser implements Parser {
     private Path sourceFile;
     private String delimeter;
     private String quoteSymbol;
+    private boolean skipFirstLine;
 
     @Override
     public void parse() throws ParserException {
@@ -27,15 +27,26 @@ public class BookParser implements Parser {
 
         try (BufferedReader reader = Files.newBufferedReader(sourceFile, Charset.forName("UTF-8"))) {
             String line = null;
+            boolean skipLine = true;
             while ((line = reader.readLine()) != null) {
+
+                // skip header
+                if (skipFirstLine && skipLine) {
+                    skipLine = false;
+                    continue;
+                }
+
                 Book book = this.parse(line);
                 if (log.isDebugEnabled()) {
                     log.debug(String.format("book->%s", book));
                 }
             }
-        } catch (IOException x) {
+        } catch (Exception x) {
+            log.error(x.getMessage(), x);
             throw new ParserException(x.getMessage(), x);
         }
+
+        // Files.move(sourceFile, target, options)
     }
 
     protected Book parse(String line) throws ParserException {
@@ -43,31 +54,37 @@ public class BookParser implements Parser {
             log.debug(String.format("Parsing line -> %s", line));
         }
 
-        String[] columns = line.split(delimeter);
+        // String[] columns = line.split(delimeter);
+        String[] columns = new String[25];
+        columns = this.customSplit(line).toArray(columns);
 
-        if (columns.length != 5) {
+        if (columns.length < 10) {
             throw new ParserException("Invalid number of columns");
         } else {
             String isbn = null;
-            String name = null;
-            LocalDate publishedOn = null;
+            String title = null;
+            int publicationYear = 0;
             String authors = null;
-            int pages = 0;
+            String langCode = null;
+            float avgRating = 0.0f;
+            String imgUrl = null;
 
-            isbn = this.removeQuotes(columns[0]);
-            name = this.removeQuotes(columns[1]);
-            publishedOn = this.parseDate(this.removeQuotes(columns[2]));
-            authors = this.removeQuotes(columns[3]);
-            pages = this.parseInt(this.removeQuotes(columns[4]));
+            isbn = this.removeQuotes(columns[5]);
+            title = this.removeQuotes(columns[9]);
+            publicationYear = (int) this.parseFload(this.removeQuotes(columns[8]));
+            authors = this.removeQuotes(columns[7]);
+            langCode = this.removeQuotes(columns[10]);
+            // avgRating = this.parseFload(this.removeQuotes(columns[4]));
+            // imgUrl
 
-            return new Book(isbn, name, publishedOn, authors, pages);
+            return new Book(isbn, title, publicationYear, langCode, authors, avgRating, imgUrl);
         }
 
     }
 
     protected String removeQuotes(String value) {
 
-        if (quoteSymbol != null) {
+        if (quoteSymbol != null && value.startsWith(quoteSymbol) && value.endsWith(quoteSymbol)) {
             return value.substring(1, value.length() - 1);
         } else {
             return value;
@@ -83,7 +100,47 @@ public class BookParser implements Parser {
         }
     }
 
-    protected LocalDate parseDate(String value) {
-        return LocalDate.parse(value, DateTimeFormatter.ISO_LOCAL_DATE);
+    protected float parseFload(String value) {
+        return Float.parseFloat(value);
+    }
+
+    protected List<String> customSplit(String line) throws ParserException {
+        List<String> result = new ArrayList<>();
+        boolean move = true;
+        int currentIndex = 0;
+        int startQuoteIndex = 0;
+        int endQuoteIndex = 0;
+        while (move) {
+
+            int separatorIndex = line.indexOf(",", currentIndex);
+
+            startQuoteIndex = line.indexOf("\"", endQuoteIndex == 0 ? endQuoteIndex : endQuoteIndex + 1);
+
+            if (separatorIndex < line.length() - 1) { // not the last symbol
+                if (separatorIndex < 0) {
+                    result.add(line.substring(currentIndex)); // last column
+                }else if (startQuoteIndex < 0 || separatorIndex < startQuoteIndex) {
+                    result.add(line.substring(currentIndex, separatorIndex));
+                    currentIndex = separatorIndex + 1;
+                }  else {
+                    // find index fo the end quote
+                    endQuoteIndex = line.indexOf("\"", startQuoteIndex + 1);
+                    if (endQuoteIndex > startQuoteIndex && endQuoteIndex != -1 && startQuoteIndex != -1) {
+                        result.add(line.substring(startQuoteIndex + 1, endQuoteIndex));
+                        currentIndex = endQuoteIndex + 2; // asuume that delimeter follows quote symbol
+                        endQuoteIndex = currentIndex;
+                    } else {
+                        throw new ParserException("Cannot find second quotation symbol from from pair!");
+                    }
+                }
+            }
+
+            if (currentIndex < 0 || currentIndex >= line.length() - 1 || separatorIndex < 0) {
+                move = false;
+            }
+
+        }
+
+        return result;
     }
 }

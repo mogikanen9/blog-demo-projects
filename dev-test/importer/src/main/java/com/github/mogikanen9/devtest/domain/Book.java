@@ -1,7 +1,6 @@
 package com.github.mogikanen9.devtest.domain;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,12 +13,16 @@ public class Book implements Serializable{
 
     private String isbn;
 
-    private String name;
+    private String title;
 
-    private LocalDate publishedOn;
+    private int publicationYear;
+
+    private String langCode;
 
     private String authors;
 
-    private int pages;
+    private float avgRating;
+
+    private String imgUrl;
 
 }

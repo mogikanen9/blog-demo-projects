@@ -1,6 +1,6 @@
 package com.github.mogikanen9.devtest.parser;
 
-public class ParserException extends RuntimeException{
+public class ParserException extends Exception{
 
     private static final long serialVersionUID = 1L;
 

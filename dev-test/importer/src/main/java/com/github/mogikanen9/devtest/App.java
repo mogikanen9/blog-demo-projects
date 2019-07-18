@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import com.github.mogikanen9.devtest.parser.BookParser;
+import com.github.mogikanen9.devtest.parser.ParserException;
 import com.github.mogikanen9.devtest.scanner.FileScanner;
 
 import lombok.extern.slf4j.Slf4j;
@@ -16,14 +17,22 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class App {
 
+    private static final String BOOK_REG_EXP = "(,)|(,\")";
+
     public static void main(String[] args) {
 
         log.info("App main...");
-    
-        ExecutorService bookExecutor = Executors.newFixedThreadPool(2);
+
+        ExecutorService bookExecutor = Executors.newFixedThreadPool(1);
 
         Consumer<Path> bookFileParser = (path) -> {
-            bookExecutor.submit(()-> new BookParser(path,",","'").parse());           
+            bookExecutor.submit(() -> {
+                try {
+                    new BookParser(path, BOOK_REG_EXP, "\"", true).parse();
+                } catch (ParserException e) {
+                    log.error(e.getMessage(), e);
+                }
+            });
         };
 
 
@@ -33,7 +42,7 @@ public class App {
         };
 
         ScheduledExecutorService srcScanner = Executors.newSingleThreadScheduledExecutor();
-        srcScanner.scheduleWithFixedDelay(bookImporter,10, 30, TimeUnit.SECONDS);
+        srcScanner.scheduleWithFixedDelay(bookImporter,10, 600, TimeUnit.SECONDS);
        
     }
 
