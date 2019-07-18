@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 import com.github.mogikanen9.devtest.parser.BookParser;
 import com.github.mogikanen9.devtest.parser.ParserException;
 import com.github.mogikanen9.devtest.scanner.FileScanner;
+import com.github.mogikanen9.devtest.writer.RestWriter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,7 +21,7 @@ public class App {
     public static void main(String[] args) {
 
         log.info("App main...");
-       
+
         final String delimeterSymbol = ",";
         final String quoteSymbol = "\"";
         final String doubleQuoteSymbol = "\"\"";
@@ -31,13 +32,13 @@ public class App {
         Consumer<Path> bookFileParser = (path) -> {
             bookExecutor.submit(() -> {
                 try {
-                    new BookParser(path,delimeterSymbol,quoteSymbol,doubleQuoteSymbol,doubleQuoteReplacement,true).parse();
+                    new BookParser(path, delimeterSymbol, quoteSymbol, doubleQuoteSymbol, doubleQuoteReplacement, true,
+                            new RestWriter()).parse();
                 } catch (ParserException e) {
                     log.error(e.getMessage(), e);
                 }
             });
         };
-
 
         Runnable bookImporter = () -> {
             log.info("Importing books...");
@@ -45,8 +46,8 @@ public class App {
         };
 
         ScheduledExecutorService srcScanner = Executors.newSingleThreadScheduledExecutor();
-        srcScanner.scheduleWithFixedDelay(bookImporter,10, 600, TimeUnit.SECONDS);
-       
+        srcScanner.scheduleWithFixedDelay(bookImporter, 10, 300, TimeUnit.SECONDS);
+
     }
 
 }

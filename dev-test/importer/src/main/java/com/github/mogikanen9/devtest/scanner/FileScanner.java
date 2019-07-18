@@ -3,6 +3,7 @@ package com.github.mogikanen9.devtest.scanner;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,9 +19,15 @@ public class FileScanner {
     public List<Path> listAll() throws ScannerException {
 
         try {
-            return Files.list(srcFolder).limit(limit).collect(Collectors.toList());
+
+            List<Path> result = new ArrayList<>();
+            Files.newDirectoryStream(srcFolder, "*.csv").forEach((path) -> result.add(path));
+            return result.stream().limit(limit).collect(Collectors.toList());
+
         } catch (IOException e) {
             throw new ScannerException(e.getMessage(), e);
         }
     }
+
+    
 }

@@ -1,20 +1,24 @@
 package com.github.mogikanen9.devtest.parser;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.github.mogikanen9.devtest.domain.Book;
+import com.github.mogikanen9.devtest.writer.Writer;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @AllArgsConstructor
-public class BookParser{
+public class BookParser {
 
     private Path sourceFile;
     private String delimeter;
@@ -22,6 +26,7 @@ public class BookParser{
     private String doubleQuoteSymbol;
     private String doubleQuoteReplacement;
     private boolean skipFirstLine;
+    private Writer writer;
 
     public void parse() throws ParserException {
         long initTime = System.currentTimeMillis();
@@ -43,15 +48,21 @@ public class BookParser{
                 if (log.isDebugEnabled()) {
                     log.debug(String.format("book->%s", book));
                 }
+
+                writer.write(book);
             }
+
+            long parsedTime = System.currentTimeMillis() - initTime;
+            log.info(String.format("SourceFile->%s was successfully parsed in %dms.", sourceFile.toString(), parsedTime));
+    
+            Path renamedFile = this.markAsParsed(sourceFile);
+            log.info(String.format("SourceFile->%s was successfully renamed to %s.", sourceFile.getFileName(), renamedFile.getFileName()));
+
         } catch (Exception x) {
             log.error(x.getMessage(), x);
             throw new ParserException(x.getMessage(), x);
         }
 
-        // Files.move(sourceFile, target, options)
-        long parsedTime = System.currentTimeMillis() - initTime;
-        log.info(String.format("SourceFile->%s was successfully parsed in %dms.", sourceFile.toString(),parsedTime));
     }
 
     protected Book parse(String line, String quoteSymbol, String delimeterSymbol) throws ParserException {
@@ -148,5 +159,11 @@ public class BookParser{
         }
 
         return result;
+    }
+
+    protected Path markAsParsed(Path source) throws IOException {
+        Path target = Paths.get(source.getParent().toFile().getAbsolutePath(), "/"+source.getFileName()+".parsed");
+        Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+        return target;
     }
 }
