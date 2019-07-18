@@ -17,8 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 public class BookParser implements Parser {
 
     private Path sourceFile;
-    private String delimeter;
     private String quoteSymbol;
+    private String delimeter;
     private boolean skipFirstLine;
 
     @Override
@@ -36,7 +36,7 @@ public class BookParser implements Parser {
                     continue;
                 }
 
-                Book book = this.parse(line);
+                Book book = this.parse(line, this.quoteSymbol, this.delimeter);
                 if (log.isDebugEnabled()) {
                     log.debug(String.format("book->%s", book));
                 }
@@ -47,16 +47,17 @@ public class BookParser implements Parser {
         }
 
         // Files.move(sourceFile, target, options)
+        log.info(String.format("SourceFile->%s was successfully parsed.", sourceFile.toString()));
     }
 
-    protected Book parse(String line) throws ParserException {
+    protected Book parse(String line, String quoteSymbol, String delimeterSymbol) throws ParserException {
         if (log.isDebugEnabled()) {
             log.debug(String.format("Parsing line -> %s", line));
         }
 
         // String[] columns = line.split(delimeter);
-        String[] columns = new String[25];
-        columns = this.customSplit(line).toArray(columns);
+        String[] columns = new String[23];
+        columns = this.customSplit(line, quoteSymbol, delimeterSymbol).toArray(columns);
 
         if (columns.length < 10) {
             throw new ParserException("Invalid number of columns");
@@ -73,9 +74,9 @@ public class BookParser implements Parser {
             title = this.removeQuotes(columns[9]);
             publicationYear = (int) this.parseFload(this.removeQuotes(columns[8]));
             authors = this.removeQuotes(columns[7]);
-            langCode = this.removeQuotes(columns[10]);
-            // avgRating = this.parseFload(this.removeQuotes(columns[4]));
-            // imgUrl
+            langCode = this.removeQuotes(columns[11]);
+            avgRating = this.parseFload(this.removeQuotes(columns[12]));
+            imgUrl = this.removeQuotes(columns[21]);
 
             return new Book(isbn, title, publicationYear, langCode, authors, avgRating, imgUrl);
         }
@@ -84,7 +85,7 @@ public class BookParser implements Parser {
 
     protected String removeQuotes(String value) {
 
-        if (quoteSymbol != null && value.startsWith(quoteSymbol) && value.endsWith(quoteSymbol)) {
+        if (value!=null && quoteSymbol != null && value.startsWith(quoteSymbol) && value.endsWith(quoteSymbol)) {
             return value.substring(1, value.length() - 1);
         } else {
             return value;
@@ -93,7 +94,7 @@ public class BookParser implements Parser {
     }
 
     protected int parseInt(String value) {
-        if (value.length() > 0) {
+        if (value!=null && value.length() > 0) {
             return Integer.parseInt(value);
         } else {
             return 0;
@@ -101,20 +102,26 @@ public class BookParser implements Parser {
     }
 
     protected float parseFload(String value) {
-        return Float.parseFloat(value);
+        if(value!=null && value.length()>0){
+            return Float.parseFloat(value);
+        }else{
+            return 0;
+        }       
     }
 
-    protected List<String> customSplit(String line) throws ParserException {
+    protected List<String> customSplit(String line, String quoteSymbol, String delimeterSymbol) throws ParserException {
+
         List<String> result = new ArrayList<>();
-        boolean move = true;
+        boolean moveNext = true;
         int currentIndex = 0;
         int startQuoteIndex = 0;
         int endQuoteIndex = 0;
-        while (move) {
+        
+        while (moveNext) {
 
-            int separatorIndex = line.indexOf(",", currentIndex);
+            int separatorIndex = line.indexOf(delimeterSymbol, currentIndex);
 
-            startQuoteIndex = line.indexOf("\"", endQuoteIndex == 0 ? endQuoteIndex : endQuoteIndex + 1);
+            startQuoteIndex = line.indexOf(quoteSymbol, endQuoteIndex == 0 ? endQuoteIndex : endQuoteIndex + 1);
 
             if (separatorIndex < line.length() - 1) { // not the last symbol
                 if (separatorIndex < 0) {
@@ -124,11 +131,11 @@ public class BookParser implements Parser {
                     currentIndex = separatorIndex + 1;
                 }  else {
                     // find index fo the end quote
-                    endQuoteIndex = line.indexOf("\"", startQuoteIndex + 1);
+                    endQuoteIndex = line.indexOf(quoteSymbol, startQuoteIndex + 1);
                     if (endQuoteIndex > startQuoteIndex && endQuoteIndex != -1 && startQuoteIndex != -1) {
                         result.add(line.substring(startQuoteIndex + 1, endQuoteIndex));
-                        currentIndex = endQuoteIndex + 2; // asuume that delimeter follows quote symbol
-                        endQuoteIndex = currentIndex;
+                        currentIndex = endQuoteIndex + 2; // assume that delimeter follows quote symbol
+                        endQuoteIndex = currentIndex - 1;
                     } else {
                         throw new ParserException("Cannot find second quotation symbol from from pair!");
                     }
@@ -136,7 +143,7 @@ public class BookParser implements Parser {
             }
 
             if (currentIndex < 0 || currentIndex >= line.length() - 1 || separatorIndex < 0) {
-                move = false;
+                moveNext = false;
             }
 
         }

@@ -17,18 +17,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class App {
 
-    private static final String BOOK_REG_EXP = "(,)|(,\")";
-
     public static void main(String[] args) {
 
         log.info("App main...");
+
+        final String quoteSymbol = "\"";
+        final String delimeterSymbol = ",";
 
         ExecutorService bookExecutor = Executors.newFixedThreadPool(1);
 
         Consumer<Path> bookFileParser = (path) -> {
             bookExecutor.submit(() -> {
                 try {
-                    new BookParser(path, BOOK_REG_EXP, "\"", true).parse();
+                    new BookParser(path, quoteSymbol, delimeterSymbol, true).parse();
                 } catch (ParserException e) {
                     log.error(e.getMessage(), e);
                 }
