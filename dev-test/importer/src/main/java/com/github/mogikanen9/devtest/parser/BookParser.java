@@ -14,15 +14,17 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @AllArgsConstructor
-public class BookParser implements Parser {
+public class BookParser{
 
     private Path sourceFile;
-    private String quoteSymbol;
     private String delimeter;
+    private String quoteSymbol;
+    private String doubleQuoteSymbol;
+    private String doubleQuoteReplacement;
     private boolean skipFirstLine;
 
-    @Override
     public void parse() throws ParserException {
+        long initTime = System.currentTimeMillis();
         log.info(String.format("Parsing sourceFile->%s", sourceFile.toString()));
 
         try (BufferedReader reader = Files.newBufferedReader(sourceFile, Charset.forName("UTF-8"))) {
@@ -36,7 +38,8 @@ public class BookParser implements Parser {
                     continue;
                 }
 
-                Book book = this.parse(line, this.quoteSymbol, this.delimeter);
+                Book book = this.parse(this.replaceDoubleQuoteSymbol(line, doubleQuoteSymbol, doubleQuoteReplacement),
+                        this.quoteSymbol, this.delimeter);
                 if (log.isDebugEnabled()) {
                     log.debug(String.format("book->%s", book));
                 }
@@ -47,7 +50,8 @@ public class BookParser implements Parser {
         }
 
         // Files.move(sourceFile, target, options)
-        log.info(String.format("SourceFile->%s was successfully parsed.", sourceFile.toString()));
+        long parsedTime = System.currentTimeMillis() - initTime;
+        log.info(String.format("SourceFile->%s was successfully parsed in %dms.", sourceFile.toString(),parsedTime));
     }
 
     protected Book parse(String line, String quoteSymbol, String delimeterSymbol) throws ParserException {
@@ -70,43 +74,38 @@ public class BookParser implements Parser {
             float avgRating = 0.0f;
             String imgUrl = null;
 
-            isbn = this.removeQuotes(columns[5]);
-            title = this.removeQuotes(columns[9]);
-            publicationYear = (int) this.parseFload(this.removeQuotes(columns[8]));
-            authors = this.removeQuotes(columns[7]);
-            langCode = this.removeQuotes(columns[11]);
-            avgRating = this.parseFload(this.removeQuotes(columns[12]));
-            imgUrl = this.removeQuotes(columns[21]);
+            isbn = this.stripQuoteSymbol(columns[5], quoteSymbol);
+            title = this.stripQuoteSymbol(columns[9], quoteSymbol);
+            publicationYear = (int) this.readFloatValue(this.stripQuoteSymbol(columns[8], quoteSymbol));
+            authors = this.stripQuoteSymbol(columns[7], quoteSymbol);
+            langCode = this.stripQuoteSymbol(columns[11], quoteSymbol);
+            avgRating = this.readFloatValue(this.stripQuoteSymbol(columns[12], quoteSymbol));
+            imgUrl = this.stripQuoteSymbol(columns[21], quoteSymbol);
 
             return new Book(isbn, title, publicationYear, langCode, authors, avgRating, imgUrl);
         }
 
     }
 
-    protected String removeQuotes(String value) {
+    protected String stripQuoteSymbol(String value, String quoteSymbol) {
 
-        if (value!=null && quoteSymbol != null && value.startsWith(quoteSymbol) && value.endsWith(quoteSymbol)) {
+        if (value != null && quoteSymbol != null && value.startsWith(quoteSymbol) && value.endsWith(quoteSymbol)) {
             return value.substring(1, value.length() - 1);
         } else {
             return value;
         }
-
     }
 
-    protected int parseInt(String value) {
-        if (value!=null && value.length() > 0) {
-            return Integer.parseInt(value);
+    protected float readFloatValue(String value) {
+        if (value != null && value.length() > 0) {
+            return Float.parseFloat(value);
         } else {
             return 0;
         }
     }
 
-    protected float parseFload(String value) {
-        if(value!=null && value.length()>0){
-            return Float.parseFloat(value);
-        }else{
-            return 0;
-        }       
+    protected String replaceDoubleQuoteSymbol(String line, String doubleQuoteSymbol, String replacement) {
+        return line.replaceAll(doubleQuoteSymbol, replacement);
     }
 
     protected List<String> customSplit(String line, String quoteSymbol, String delimeterSymbol) throws ParserException {
@@ -116,7 +115,7 @@ public class BookParser implements Parser {
         int currentIndex = 0;
         int startQuoteIndex = 0;
         int endQuoteIndex = 0;
-        
+
         while (moveNext) {
 
             int separatorIndex = line.indexOf(delimeterSymbol, currentIndex);
@@ -126,16 +125,16 @@ public class BookParser implements Parser {
             if (separatorIndex < line.length() - 1) { // not the last symbol
                 if (separatorIndex < 0) {
                     result.add(line.substring(currentIndex)); // last column
-                }else if (startQuoteIndex < 0 || separatorIndex < startQuoteIndex) {
+                } else if (startQuoteIndex < 0 || separatorIndex < startQuoteIndex) {
                     result.add(line.substring(currentIndex, separatorIndex));
                     currentIndex = separatorIndex + 1;
-                }  else {
+                } else {
                     // find index fo the end quote
                     endQuoteIndex = line.indexOf(quoteSymbol, startQuoteIndex + 1);
                     if (endQuoteIndex > startQuoteIndex && endQuoteIndex != -1 && startQuoteIndex != -1) {
                         result.add(line.substring(startQuoteIndex + 1, endQuoteIndex));
                         currentIndex = endQuoteIndex + 2; // assume that delimeter follows quote symbol
-                        endQuoteIndex = currentIndex - 1;
+                        endQuoteIndex++;
                     } else {
                         throw new ParserException("Cannot find second quotation symbol from from pair!");
                     }

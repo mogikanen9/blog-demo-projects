@@ -20,16 +20,18 @@ public class App {
     public static void main(String[] args) {
 
         log.info("App main...");
-
-        final String quoteSymbol = "\"";
+       
         final String delimeterSymbol = ",";
+        final String quoteSymbol = "\"";
+        final String doubleQuoteSymbol = "\"\"";
+        final String doubleQuoteReplacement = "'";
 
         ExecutorService bookExecutor = Executors.newFixedThreadPool(1);
 
         Consumer<Path> bookFileParser = (path) -> {
             bookExecutor.submit(() -> {
                 try {
-                    new BookParser(path, quoteSymbol, delimeterSymbol, true).parse();
+                    new BookParser(path,delimeterSymbol,quoteSymbol,doubleQuoteSymbol,doubleQuoteReplacement,true).parse();
                 } catch (ParserException e) {
                     log.error(e.getMessage(), e);
                 }

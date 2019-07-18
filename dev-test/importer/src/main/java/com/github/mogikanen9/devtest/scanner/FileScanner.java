@@ -9,13 +9,12 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class FileScanner implements Scanner {
+public class FileScanner {
 
     private Path srcFolder;
 
     private int limit;
 
-    @Override
     public List<Path> listAll() throws ScannerException {
 
         try {
