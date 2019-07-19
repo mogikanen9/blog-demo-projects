@@ -55,7 +55,7 @@ public class BookParser {
             long parsedTime = System.currentTimeMillis() - initTime;
             log.info(String.format("SourceFile->%s was successfully parsed in %dms.", sourceFile.toString(), parsedTime));
     
-            Path renamedFile = this.markAsParsed(sourceFile);
+            Path renamedFile = this.rename(sourceFile,".parsed");
             log.info(String.format("SourceFile->%s was successfully renamed to %s.", sourceFile.getFileName(), renamedFile.getFileName()));
 
         } catch (Exception x) {
@@ -161,8 +161,8 @@ public class BookParser {
         return result;
     }
 
-    protected Path markAsParsed(Path source) throws IOException {
-        Path target = Paths.get(source.getParent().toFile().getAbsolutePath(), "/"+source.getFileName()+".parsed");
+    protected Path rename(Path source, String extension) throws IOException {
+        Path target = Paths.get(source.getParent().toFile().getAbsolutePath(), "/".concat(source.getFileName().toString()).concat(extension));
         Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
         return target;
     }
