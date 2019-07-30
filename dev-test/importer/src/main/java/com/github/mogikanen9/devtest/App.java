@@ -47,7 +47,7 @@ public class App {
         };
 
         ScheduledExecutorService srcScanner = Executors.newSingleThreadScheduledExecutor();
-        srcScanner.scheduleWithFixedDelay(bookImporter, 10, 300, TimeUnit.SECONDS);
+        srcScanner.scheduleWithFixedDelay(bookImporter, 10, 100, TimeUnit.SECONDS);
 
     }
 

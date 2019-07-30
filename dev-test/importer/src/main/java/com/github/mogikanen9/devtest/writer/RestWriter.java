@@ -11,6 +11,8 @@ import javax.ws.rs.core.Response.Status;
 
 import com.github.mogikanen9.devtest.domain.Book;
 
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +35,10 @@ public class RestWriter implements Writer {
     protected void execSaveBook(Book book, String apiBaseUrl, String bookPath) throws WriterException{
         try {
             
+            HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic("importer", "Welcome13");
+
             Client client = ClientBuilder.newClient();
+            client.register(feature);
             WebTarget webTarget = client.target(apiBaseUrl);
             WebTarget bookTarget = webTarget.path(bookPath);
             Invocation.Builder invocationBuilder = bookTarget.request(MediaType.APPLICATION_JSON);
