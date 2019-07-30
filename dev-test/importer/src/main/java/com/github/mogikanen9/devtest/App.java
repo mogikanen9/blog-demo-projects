@@ -27,6 +27,8 @@ public class App {
         final String doubleQuoteSymbol = "\"\"";
         final String doubleQuoteReplacement = "'";
         final String apiBaseUrl = "http://localhost:8080";
+        final String apiUname = "importer";
+        final String apiPwd = "Welcome13";
 
         ExecutorService bookExecutor = Executors.newFixedThreadPool(1);
 
@@ -34,7 +36,7 @@ public class App {
             bookExecutor.submit(() -> {
                 try {
                     new BookParser(path, delimeterSymbol, quoteSymbol, doubleQuoteSymbol, doubleQuoteReplacement, true,
-                            new RestWriter(apiBaseUrl)).parse();
+                            new RestWriter(apiBaseUrl,apiUname,apiPwd)).parse();
                 } catch (ParserException e) {
                     log.error(e.getMessage(), e);
                 }

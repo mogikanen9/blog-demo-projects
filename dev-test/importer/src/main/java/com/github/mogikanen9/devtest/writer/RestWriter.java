@@ -21,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 public class RestWriter implements Writer {
 
     private String apiBaseUrl;
+    private String apiUname;
+    private String apiPwd;
 
     @Override
     public void write(Book book) throws WriterException {
@@ -35,7 +37,7 @@ public class RestWriter implements Writer {
     protected void execSaveBook(Book book, String apiBaseUrl, String bookPath) throws WriterException{
         try {
             
-            HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic("importer", "Welcome13");
+            HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(apiUname, apiPwd);
 
             Client client = ClientBuilder.newClient();
             client.register(feature);
