@@ -28,13 +28,17 @@ public class BookParser {
     private boolean skipFirstLine;
     private Writer writer;
 
-    public void parse() throws ParserException {
+    public BookResult parse() {
         long initTime = System.currentTimeMillis();
         log.info(String.format("Parsing sourceFile->%s", sourceFile.toString()));
+        int numberOfLines = 0;
+        long parsedTime = 0;
+        ParserException ex = null;
 
         try (BufferedReader reader = Files.newBufferedReader(sourceFile, Charset.forName("UTF-8"))) {
             String line = null;
             boolean skipLine = true;
+
             while ((line = reader.readLine()) != null) {
 
                 // skip header
@@ -50,18 +54,23 @@ public class BookParser {
                 }
 
                 writer.write(book);
-            }
 
-            long parsedTime = System.currentTimeMillis() - initTime;
-            log.info(String.format("SourceFile->%s was successfully parsed in %dms.", sourceFile.toString(), parsedTime));
-    
+                numberOfLines++;
+            }           
+
             Path renamedFile = this.rename(sourceFile,".parsed");
-            log.info(String.format("SourceFile->%s was successfully renamed to %s.", sourceFile.getFileName(), renamedFile.getFileName()));
+            log.info(String.format("SourceFile->%s was successfully renamed to %s.", sourceFile.getFileName(), renamedFile.getFileName()));           
+
+            parsedTime = System.currentTimeMillis() - initTime;
+            log.info(String.format("SourceFile->%s was successfully parsed in %dms.", sourceFile.toString(), parsedTime));        
 
         } catch (Exception x) {
             log.error(x.getMessage(), x);
-            throw new ParserException(x.getMessage(), x);
+            ex = new ParserException(x.getMessage(), x);
+            //throw new ParserException(x.getMessage(), x);
         }
+        
+        return new BookResult(sourceFile,numberOfLines, parsedTime, ex);
 
     }
 
@@ -101,9 +110,9 @@ public class BookParser {
     protected String stripQuoteSymbol(String value, String quoteSymbol) {
 
         if (value != null && quoteSymbol != null && value.startsWith(quoteSymbol) && value.endsWith(quoteSymbol)) {
-            return value.substring(1, value.length() - 1);
+            return value.substring(1, value.length() - 1).trim();
         } else {
-            return value;
+            return value!=null?value.trim():value;
         }
     }
 

@@ -56,7 +56,7 @@ public class RestWriter implements Writer {
             
             if(!response.getStatusInfo().equals(Status.CREATED)){
                 if(response.getStatusInfo().equals(Status.CONFLICT)){
-                    log.warn(String.format("Book with ISBN->%s already exists", book.getIsbn()));
+                    log.debug(String.format("Book with ISBN->%s already exists", book.getIsbn()));
                 }else{
                     throw new WriterException(String.format("Book with ISBN->%s was not created", book.getIsbn()));
                 }                

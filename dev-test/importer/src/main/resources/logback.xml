@@ -7,7 +7,7 @@
         </encoder>
       </appender>
 
-    <logger name="com.github.mogikanen9.devtest" level="debug" additivity="false">
+    <logger name="com.github.mogikanen9.devtest" level="info" additivity="false">
         <appender-ref ref="CONSOLE"/>
     </logger>
 
