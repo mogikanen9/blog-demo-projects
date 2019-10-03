@@ -17,7 +17,7 @@ public class MyChatEndpoint {
 
     private Session session;
 
-    private Map<String, MyChatEndpoint> endPoints = new ConcurrentHashMap<>();
+    private static Map<String, MyChatEndpoint> endPoints = new ConcurrentHashMap<>();
 
     protected Session getSession() {
         return this.session;
@@ -32,15 +32,14 @@ public class MyChatEndpoint {
 
     @OnMessage
     public void onMessage(Session session, String message) throws IOException {
-        System.out.println("message->" + message);
-        session.getBasicRemote().sendText("Got it!");
+        System.out.println("message->" + message);        
         this.broadcast(message);
     }
 
     @OnClose
     public void onClose(Session session) throws IOException {
         endPoints.remove(session.getId());
-        this.broadcast(String.format("user with id=%s has ljust left",session.getId()));
+        this.broadcast(String.format("user with id=%s has just left",session.getId()));
     }
 
     @OnError
@@ -53,6 +52,7 @@ public class MyChatEndpoint {
             synchronized (entry) {
                 try {
                     entry.getValue().getSession().getBasicRemote().sendObject(message);
+                    System.out.println("broadcasted to session %s->" +  entry.getValue().getSession().getId()); 
                 } catch (IOException | EncodeException e) {
                     e.printStackTrace();
                 }

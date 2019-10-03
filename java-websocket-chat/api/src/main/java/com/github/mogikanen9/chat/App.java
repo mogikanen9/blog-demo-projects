@@ -15,7 +15,7 @@ public class App {
     public static void main(String[] args) throws DeploymentException, IOException, InterruptedException {
         Server server = new Server("localhost", 8082, "", null, MyChatEndpoint.class);
         server.start();
-        System.out.print("---- Server Started -----");
+        System.out.println("---- Server Started -----");
         new CountDownLatch(1).await();
     }
 }

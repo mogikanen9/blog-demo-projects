@@ -11,6 +11,8 @@ function connect(){
 
       exampleSocket.onmessage = function (event){
         console.log('server replied with->'+event.data);
+        var chatMessages = document.getElementById('chatMessages');
+        chatMessages.value =  chatMessages.value +'\n'+event.data;
       };
 }
 
