@@ -16,6 +16,10 @@ function connect(){
         var chatMessages = document.getElementById('chatMessages');
         chatMessages.value =  chatMessages.value +'\n'+'User: '+msg.from+' sent message: '+msg.content;
       };
+
+      exampleSocket.onerror = function (err){
+        console.log('server replied with err ->'+err);
+      }
 }
 
 function send(data){

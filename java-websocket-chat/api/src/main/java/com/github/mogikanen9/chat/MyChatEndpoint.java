@@ -12,7 +12,11 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-@ServerEndpoint(value = "/chat/{username}", decoders = MessageDecoder.class, encoders = MessageEncoder.class)
+@ServerEndpoint(
+    value = "/chat/{username}", 
+    decoders = MessageDecoder.class, 
+    encoders = MessageEncoder.class,
+    configurator = ChatEndpointConfigurator.class)
 public class MyChatEndpoint {
 
     private Session session;
@@ -24,7 +28,7 @@ public class MyChatEndpoint {
     }
 
     @OnOpen
-    public void onOpen(Session session) throws IOException {
+    public void onOpen(Session session) throws IOException {       
         System.out.println("onOpen#session.getId()->" + session.getId());
         this.session = session;
         endPoints.put(session.getId(), this);
