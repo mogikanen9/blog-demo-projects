@@ -1,11 +1,14 @@
 var exampleSocket;
+var username;
 
-function connect(){
+function connect(nickname){   
 
-    exampleSocket = new WebSocket("ws://localhost:8082/chat/{username}");
+    exampleSocket = new WebSocket("ws://localhost:8082/chat/"+nickname);
+
+    username = nickname;
 
     exampleSocket.onopen = function (event) {
-        var msg = {from: 'Vasya', content: 'Connection request'}
+        var msg = {from: username, content: 'Connection request'}
         exampleSocket.send(JSON.stringify(msg));
         console.log('initiating connection to server...');
       };
@@ -25,11 +28,11 @@ function connect(){
 function send(data){
  
     if(exampleSocket && exampleSocket.readyState=='1'){//OPEN
-        var msg = {from: 'Vasya', content: data}
+        var msg = {from: username, content: data}
         exampleSocket.send(JSON.stringify(msg));
         console.log('data message sent to server');
     }
     
 }
 
-connect();
+//connect();

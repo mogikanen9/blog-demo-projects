@@ -10,6 +10,7 @@ import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
+import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
 @ServerEndpoint(
@@ -22,17 +23,19 @@ public class MyChatEndpoint {
     private Session session;
 
     private static Map<String, MyChatEndpoint> endPoints = new ConcurrentHashMap<>();
+    private static Map<String, String> users = new ConcurrentHashMap<>();
 
     protected Session getSession() {
         return this.session;
     }
 
     @OnOpen
-    public void onOpen(Session session) throws IOException {       
-        System.out.println("onOpen#session.getId()->" + session.getId());
+    public void onOpen(Session session, @PathParam("username") String username) throws IOException {       
+        System.out.println(String.format("onOpen#session.getId()->%s, username->%s",session.getId(), username));
         this.session = session;
         endPoints.put(session.getId(), this);
-        this.broadcast(new Message(session.getId(),String.format("new user joined with id=%s", session.getId())));
+        users.put(session.getId(), username);
+        this.broadcast(new Message(username,String.format("new user joined with id=%s", session.getId())));
     }
 
     @OnMessage
@@ -44,7 +47,9 @@ public class MyChatEndpoint {
     @OnClose
     public void onClose(Session session) throws IOException {
         endPoints.remove(session.getId());
-        this.broadcast(new Message(session.getId(), String.format("user with id=%s has just left",session.getId())));
+        String username = users.get(session.getId());
+        users.remove(session.getId());
+        this.broadcast(new Message(username, String.format("user with id=%s has just left",session.getId())));
     }
 
     @OnError
