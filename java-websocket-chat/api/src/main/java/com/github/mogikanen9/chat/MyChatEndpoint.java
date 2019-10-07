@@ -13,11 +13,14 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
+import lombok.extern.slf4j.Slf4j;
+
 @ServerEndpoint(
     value = "/chat/{username}", 
     decoders = MessageDecoder.class, 
     encoders = MessageEncoder.class,
     configurator = ChatEndpointConfigurator.class)
+@Slf4j    
 public class MyChatEndpoint {
 
     private Session session;
@@ -31,7 +34,7 @@ public class MyChatEndpoint {
 
     @OnOpen
     public void onOpen(Session session, @PathParam("username") String username) throws IOException {       
-        System.out.println(String.format("onOpen#session.getId()->%s, username->%s",session.getId(), username));
+        log.debug(String.format("onOpen#session.getId()->%s, username->%s",session.getId(), username));
         this.session = session;
         endPoints.put(session.getId(), this);
         users.put(session.getId(), username);
@@ -40,7 +43,7 @@ public class MyChatEndpoint {
 
     @OnMessage
     public void onMessage(Session session, Message message) throws IOException {
-        System.out.println("onMessage->" + message);
+        log.debug(String.format("onMessage->%s",message));
         this.broadcast(message);
     }
 
@@ -54,7 +57,7 @@ public class MyChatEndpoint {
 
     @OnError
     public void onError(Session session, Throwable throwable) {
-        throwable.printStackTrace();
+        log.error(throwable.getMessage(), throwable);
     }
 
     protected void broadcast(Message message) {
@@ -62,9 +65,9 @@ public class MyChatEndpoint {
             synchronized (entry) {
                 try {
                     entry.getValue().getSession().getBasicRemote().sendObject(message);
-                    System.out.println("broadcasted to session %s->" + entry.getValue().getSession().getId());
+                    log.debug(String.format("broadcasted to session->%s",entry.getValue().getSession().getId()));
                 } catch (IOException | EncodeException e) {
-                    e.printStackTrace();
+                    log.error(e.getMessage(), e);
                 }
             }
         });

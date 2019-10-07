@@ -8,6 +8,9 @@ import javax.websocket.EndpointConfig;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class MessageDecoder implements Decoder.Text<Message> {
 
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -27,7 +30,7 @@ public class MessageDecoder implements Decoder.Text<Message> {
     @Override
     public Message decode(String s) throws DecodeException {
         try {
-            System.out.println(String.format("decode->%s",s));
+            log.debug(String.format("decode->%s",s));
             return objectMapper.readValue(s, Message.class);
         } catch (IOException e) {
             throw new DecodeException(s, e.getMessage(), e);
