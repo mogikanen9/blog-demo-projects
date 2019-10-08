@@ -16,8 +16,7 @@ public class AddController {
     }
 
     @PostMapping("/mygreetings")
-    public void greet(String greeting) {
-        //String text = String.format("{ content: '%s'}",greeting);
+    public void greet(String greeting) {        
         this.template.convertAndSend("/topic/greetings", new Greeting(greeting));
     }
 }
