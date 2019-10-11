@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
@@ -19,7 +20,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -69,5 +73,12 @@ public class FileController {
 
     protected String evalFilename(Resource resource, String inFileName) {
         return Objects.isNull(resource.getFilename()) ? inFileName : resource.getFilename();
+    }
+
+    @PostMapping("/file/uploadFile")
+    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) throws Exception {
+        log.info("file content->"+new String(file.getBytes()));
+        Path storedFilePath = this.fileService.storeFile(file);        
+        return ResponseEntity.status(HttpStatus.CREATED).body(storedFilePath.getFileName().toFile().getName());
     }
 }
