@@ -8,7 +8,6 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class FileApiClient {
 
@@ -21,7 +20,7 @@ public class FileApiClient {
     public void uploadFile(Path fileToUpload) throws IOException, InterruptedException {
 
         HttpClient client = HttpClient.newBuilder().build();
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(this.apiUrl))
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(this.apiUrl+"/uploadFile"))
                 .POST(BodyPublishers.ofString("data")).build();
 
         HttpResponse<?> response = client.send(request, BodyHandlers.discarding());
@@ -31,9 +30,9 @@ public class FileApiClient {
     public void downloadFile(String fileNameToDownload, Path destFile) throws IOException, InterruptedException {
 
         HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(this.apiUrl + "/" + fileNameToDownload)).build();
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(this.apiUrl + "/download/" + fileNameToDownload)).build();
 
-        HttpResponse<Path> response = client.send(request, BodyHandlers.ofFile(Paths.get("body.txt")));
+        HttpResponse<Path> response = client.send(request, BodyHandlers.ofFile(destFile));
 
         System.out.println("Response in file:" + response.body());
     }
