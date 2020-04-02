@@ -1,4 +1,4 @@
-package com.mogikanensoftware.mapqueuelock;
+package com.poc.mapqueuelock;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
