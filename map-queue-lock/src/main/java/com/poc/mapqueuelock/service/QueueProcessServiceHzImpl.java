@@ -41,7 +41,7 @@ public class QueueProcessServiceHzImpl implements QueueProcessService {
         int pageNumber = 0;
 
         do {
-           
+
             Pageable pageable = PageRequest.of(pageNumber, 10, Sort.by("id").ascending());
             Page<Request> page = this.repo.findAll(pageable);
             List<Request> pageRequests = page.getContent();
@@ -78,8 +78,12 @@ public class QueueProcessServiceHzImpl implements QueueProcessService {
 
     @Override
     public void markAsFulfilled(int id) {
-        this.repo.deleteById(id);
-        this.lockMap().remove(id);
+
+        IMap<Integer, String> lockMap = this.lockMap();
+        if (lockMap.containsKey(id)) {
+            this.repo.deleteById(id);
+            this.lockMap().remove(id);
+        }
     }
 
 }
