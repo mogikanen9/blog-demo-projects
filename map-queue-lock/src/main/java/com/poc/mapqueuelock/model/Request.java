@@ -11,13 +11,17 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "Request")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Request implements Serializable {
 
     private static final long serialVersionUID = -1601394364183233683L;
@@ -25,7 +29,7 @@ public class Request implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private int id;    
 
     @Column(name = "FirstName", nullable = false, length = 255)
     @NotNull
