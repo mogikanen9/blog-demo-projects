@@ -1,5 +1,6 @@
 package com.poc.mapqueuelock.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
@@ -10,6 +11,10 @@ import com.poc.mapqueuelock.model.Request;
 import com.poc.mapqueuelock.repo.RequestRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -32,25 +37,43 @@ public class QueueProcessServiceHzImpl implements QueueProcessService {
     @Override
     public Optional<Request> getNextAvailable() {
 
-        Optional<Request> result = null;
+        Request result = null;
+        int pageNumber = 0;
 
         do {
-            result = this.repo.findFirstByOrderByIdAsc();
+           
+            Pageable pageable = PageRequest.of(pageNumber, 10, Sort.by("id").ascending());
+            Page<Request> page = this.repo.findAll(pageable);
+            List<Request> pageRequests = page.getContent();
 
-            if (!result.isPresent()) {
-                return result;
+            // queue is empty
+            if (pageRequests.isEmpty()) {
+                return Optional.ofNullable(null);
             }
 
-            IMap<Integer, String> lockMap = this.lockMap();
-            String marker = lockMap.get(result.get().getId());
+            // check items from this page
+            for (int i = 0; i < pageRequests.size(); i++) {
+                result = pageRequests.get(i);
 
-            if (marker == null) {
-                lockMap.put(result.get().getId(), result.get().getEmail());
-                break;
+                IMap<Integer, String> lockMap = this.lockMap();
+                String marker = lockMap.get(result.getId());
+
+                if (marker == null) {
+                    lockMap.put(result.getId(), result.getEmail());
+                    break;
+                } else {
+                    result = null;
+                }
             }
-        } while (result != null);
 
-        return result;
+            // will try next page
+            if (result == null) {
+                pageNumber++;
+            }
+
+        } while (result == null);
+
+        return Optional.of(result);
     }
 
     @Override
