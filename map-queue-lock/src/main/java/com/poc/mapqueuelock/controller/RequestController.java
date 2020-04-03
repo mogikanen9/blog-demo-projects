@@ -25,7 +25,8 @@ public class RequestController {
 
     @GetMapping
     public ResponseEntity<Request> nextRecord() {
-        return new ResponseEntity<>(this.service.getNextAvailable().orElse(new Request()), HttpStatus.OK);
+        return new ResponseEntity<>(this.service.getNextAvailable().orElse(new Request(-1, null, null, null)),
+                HttpStatus.OK);
     }
 
     @ResponseStatus(value = HttpStatus.OK)
