@@ -84,7 +84,7 @@ public class QueueProcessServiceHzImpl implements QueueProcessService {
                 // otherwise - find next available
                 do {
 
-                    final Pageable pageable = PageRequest.of(pageNumber, 10, Sort.by("id").ascending());
+                    final Pageable pageable = PageRequest.of(pageNumber, 5, Sort.by("id").ascending());
                     final Page<Request> page = this.repo.findAll(pageable);
                     final List<Request> pageRequests = page.getContent();
 

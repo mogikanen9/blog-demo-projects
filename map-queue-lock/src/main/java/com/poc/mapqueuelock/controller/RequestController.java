@@ -13,14 +13,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/request")
+@RequestMapping("/api/v1")
 public class RequestController {
 
     private QueueProcessService queueService;
@@ -32,13 +30,13 @@ public class RequestController {
         this.requestRepo = requestRepo;
     }
 
-    @PostMapping(path = "/api/v1/st/request")
+    @PostMapping(path = "/request")
     public ResponseEntity<Request> submitNewRequest(@RequestBody Request newRequest) {
         Request savedRequest = requestRepo.save(newRequest);
         return new ResponseEntity<Request>(savedRequest, HttpStatus.CREATED);
     }
 
-    @GetMapping(path = "/api/v1/st/nextrec/{userId}")
+    @GetMapping(path = "/next/{userId}")
     public ResponseEntity<Request> getNextRequestFromWaitingQueue(@PathVariable String userId)
             throws QueueProcessServiceException {
         Optional<Request> nextRequestFromQueue = queueService.getNextAvailable(userId);
@@ -49,7 +47,7 @@ public class RequestController {
         }
     }
 
-    @PostMapping(path = "/api/v1/fl/request/{userId}")
+    @PostMapping(path = "/fulfill/{userId}")
     public ResponseEntity<String> fulfillRequest(@RequestBody Request newRequest, @PathVariable String userId)
             throws QueueProcessServiceException {
         this.queueService.markAsFulfilled(newRequest.getRefNumber());

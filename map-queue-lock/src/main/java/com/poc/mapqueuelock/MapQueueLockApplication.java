@@ -30,19 +30,18 @@ public class MapQueueLockApplication implements CommandLineRunner {
 		FakeValuesService fakeValuesService = new FakeValuesService(new Locale("en-CA"), new RandomService());
 
 		Faker faker = new Faker();
+		for (int i = 0; i < 50; i++) {
+			Request req = new Request();
 
-		Request req = new Request();
+			req.setFirstName(faker.name().firstName());
 
-		req.setFirstName(faker.name().firstName());
+			req.setLastName(faker.name().lastName());
 
-		req.setLastName(faker.name().lastName());
+			req.setRefNumber(fakeValuesService.bothify("?#??###??#?"));
+			req.setRequestDate(new Date());
 
-		req.setRefNumber(fakeValuesService.bothify("?#??###??#?"));
-		req.setRequestDate(new Date());
-
-		req.setEmail(req.getFirstName() + "." + req.getLastName() + fakeValuesService.bothify("##??@mailinator.com"));
-
-		for (int i = 0; i < 20; i++) {
+			req.setEmail(
+					req.getFirstName() + "." + req.getLastName() + fakeValuesService.bothify("##??@mailinator.com"));
 
 			repository.save(req);
 		}
