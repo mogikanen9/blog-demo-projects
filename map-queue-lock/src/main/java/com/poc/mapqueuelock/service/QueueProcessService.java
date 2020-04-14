@@ -6,7 +6,7 @@ import com.poc.mapqueuelock.model.Request;
 
 public interface QueueProcessService {
 
-    Optional<Request> getNextAvailable();
+    Optional<Request> getNextAvailable(final String userId) throws QueueProcessServiceException;
 
-    void markAsFulfilled(int id);
+    void markAsFulfilled(final String refNumber) throws QueueProcessServiceException;
 }
