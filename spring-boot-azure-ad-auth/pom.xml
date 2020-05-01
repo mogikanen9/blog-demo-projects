@@ -16,9 +16,8 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>api</module>
-		<module>client</module>
 		<module>mvc</module>
+		<module>api</module>
 	</modules>
 
 </project>
