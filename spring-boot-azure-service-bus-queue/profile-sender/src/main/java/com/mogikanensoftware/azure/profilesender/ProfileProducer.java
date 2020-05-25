@@ -1,40 +1,34 @@
 
 package com.mogikanensoftware.azure.profilesender;
 
-import java.time.Instant;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
+import com.mogikanensoftware.azure.profilesender.model.Profile;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-public class ProfileProducer implements Ordered {
+public class ProfileProducer {
 
     @Autowired
     private final IQueueClient iQueueClient;
 
+    private ObjectMapper mapper;
+
     public ProfileProducer(final IQueueClient iQueueClient) {
         this.iQueueClient = iQueueClient;
+        this.mapper = new ObjectMapper();
     }
 
-    @EventListener(ApplicationReadyEvent.class)
-    public void produce() throws Exception {
-        Message msg = new Message("Hello @ " + Instant.now().toString());
+    public void produce(Profile profile) throws Exception {
+        Message msg = new Message(mapper.writeValueAsString(profile));
         this.iQueueClient.send(msg);
         log.info("message sent {}", msg);
-    }
-
-    @Override
-    public int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE;
     }
 
 }
