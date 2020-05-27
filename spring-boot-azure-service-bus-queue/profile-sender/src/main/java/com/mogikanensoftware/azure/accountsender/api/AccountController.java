@@ -1,8 +1,8 @@
 
-package com.mogikanensoftware.azure.profilesender.api;
+package com.mogikanensoftware.azure.accountsender.api;
 
-import com.mogikanensoftware.azure.profilesender.service.ProfileProducer;
-import com.mogikanensoftware.azure.profilesender.model.Profile;
+import com.mogikanensoftware.azure.accountsender.model.Account;
+import com.mogikanensoftware.azure.accountsender.service.AccountProducer;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,26 +14,25 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/api/v1/profile")
+@RequestMapping("/api/v1/account")
 @Slf4j
-public class ProfileController {
+public class AccountController {
 
-    private ProfileProducer profileProducer;
+    private AccountProducer acountProducer;
 
     @PostMapping("/send")
-    public ResponseEntity <Profile> send(@RequestBody Profile profile) {
-
+    public ResponseEntity <Account> send(@RequestBody Account account) {
         try {
-            this.profileProducer.produce(profile);
-            return new ResponseEntity <>(profile, HttpStatus.OK);
+            this.acountProducer.produce(account);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return new ResponseEntity <>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
+       
     }
 
-    public ProfileController(ProfileProducer profileProducer) {
-        this.profileProducer = profileProducer;
+    public AccountController(AccountProducer acountProducer) {
+        this.acountProducer = acountProducer;
     }
 }

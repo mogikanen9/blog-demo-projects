@@ -1,12 +1,11 @@
 
-package com.mogikanensoftware.azure.profilesender;
+package com.mogikanensoftware.azure.profilesender.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
 import com.mogikanensoftware.azure.profilesender.model.Profile;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProfileProducer {
 
-    @Autowired
     private final IQueueClient iQueueClient;
 
     private ObjectMapper mapper;
