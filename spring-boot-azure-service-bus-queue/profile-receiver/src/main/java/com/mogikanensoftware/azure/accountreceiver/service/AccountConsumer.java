@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mogikanensoftware.azure.accountreceiver.dao.AccountRepository;
 import com.mogikanensoftware.azure.accountreceiver.entity.Account;
+import com.mogikanensoftware.azure.accountreceiver.entity.Branch;
 import com.mogikanensoftware.azure.accountreceiver.model.AccountMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,11 @@ public class AccountConsumer {
         ae.setBankName(am.getBankName());
         ae.setNumber(am.getNumber());
         ae.setOpenDate(am.getOpenDate());
+
+        if(am.getBranch()!=null){
+           ae.setBranch(new Branch(am.getBranch().getName(), am.getBranch().getCode(), am.getBranch().getLocation()));
+        }
+
         this.accountRepository.save(ae);
     }
 

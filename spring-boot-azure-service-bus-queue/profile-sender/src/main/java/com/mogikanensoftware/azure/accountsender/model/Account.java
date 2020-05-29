@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,9 +24,9 @@ public class Account {
     @AllArgsConstructor
     @NoArgsConstructor
     class Branch {
-        private String branchName;
-        private String branchCode;
-        private String branchLocation;
+        private String name;
+        private String code;
+        private String location;
     }
 
 }
