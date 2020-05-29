@@ -11,7 +11,7 @@
 	<artifactId>profile-sender</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>profile-sender</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Demo project for Spring Boot and Azure Service Bus Integration (Sender)</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
