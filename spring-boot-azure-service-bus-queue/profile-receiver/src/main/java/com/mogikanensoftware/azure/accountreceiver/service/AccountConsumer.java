@@ -1,6 +1,9 @@
 
 package com.mogikanensoftware.azure.accountreceiver.service;
 
+import javax.jms.JMSException;
+import javax.jms.Message;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mogikanensoftware.azure.accountreceiver.dao.AccountRepository;
@@ -33,26 +36,37 @@ public class AccountConsumer {
         this.accountRepository = accountRepository;
     }
 
-    @JmsListener(destination = QUEUE_NAME, containerFactory = "jmsListenerContainerFactory")
-    public void receiveMessage(String msg) {
+    @JmsListener(destination = QUEUE_NAME/*, containerFactory = "jmsListenerContainerFactory"*/)
+    public void receiveMessage(Message msg) {
+
         log.info("Received message: {}", msg);
-        AccountMessage am;
+        
         try {
-            am = this.objectMapper.readValue(msg, AccountMessage.class);
-        } catch (JsonProcessingException e) {
+
+            String body = msg.getBody(String.class);
+
+            AccountMessage am = this.objectMapper.readValue(body, AccountMessage.class);
+                if (am.getProfileId().equals("123")) {
+                    throw new RuntimeException("Invalid profile");
+                }
+           
+            Account ae = new Account();
+            ae.setBankName(am.getBankName());
+            ae.setNumber(am.getNumber());
+            ae.setOpenDate(am.getOpenDate());
+
+            if (am.getBranch() != null) {
+                ae.setBranch(new Branch(am.getBranch().getName(), am.getBranch().getCode(), am.getBranch().getLocation()));
+            }
+
+            this.accountRepository.save(ae);
+
+            //msg.acknowledge();
+        } catch (JsonProcessingException | JMSException e) {
             log.error(e.getMessage(), e);
-            throw new RuntimeException("Invalid account message");
-        }
-        Account ae = new Account();
-        ae.setBankName(am.getBankName());
-        ae.setNumber(am.getNumber());
-        ae.setOpenDate(am.getOpenDate());
-
-        if(am.getBranch()!=null){
-           ae.setBranch(new Branch(am.getBranch().getName(), am.getBranch().getCode(), am.getBranch().getLocation()));
+            throw new RuntimeException(e.getMessage(), e);
         }
 
-        this.accountRepository.save(ae);
     }
 
 }
