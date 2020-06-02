@@ -7,13 +7,13 @@ import javax.jms.Session;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mogikanensoftware.azure.accountreceiver.dao.AccountRepository;
 import com.mogikanensoftware.azure.accountreceiver.entity.Account;
 import com.mogikanensoftware.azure.accountreceiver.entity.Branch;
 import com.mogikanensoftware.azure.accountreceiver.model.AccountMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
@@ -24,36 +24,37 @@ public class AccountConsumer {
 
     private static final String QUEUE_NAME = "accountqueue";
 
-    private ObjectMapper objectMapper;
-    private AccountRepository accountRepository;
+    AccountService accountService;
 
-    public AccountConsumer() {
-        this.objectMapper = new ObjectMapper();
-    }
+    private ObjectMapper objectMapper;
+
+    private JmsTemplate jmsTemplate;
 
     @Autowired
-    public AccountConsumer(AccountRepository accountRepository) {
-        this();
-        this.accountRepository = accountRepository;
+    public AccountConsumer(AccountService accountService, JmsTemplate jmsTemplate) {
+        this.objectMapper = new ObjectMapper();
+        this.accountService = accountService;
+        this.jmsTemplate = jmsTemplate;
     }
 
-    @JmsListener(destination = QUEUE_NAME, containerFactory = "myJmsListenerContainerFactory")
+    @JmsListener(destination = QUEUE_NAME, containerFactory = "jmsListenerContainerFactory", concurrency = "2")
     public void receiveMessage(Message msg, Session session) {
 
         log.info("Received message: {}", msg);
-        log.info("Received session: {}", session);      
-        
+
+        log.debug("jmsTemplate.isSessionTransacted -> {} ", jmsTemplate.isSessionTransacted());
+
         try {
 
-            log.info("session.getAcknowledgeMode(): {}", session.getAcknowledgeMode());
+            log.debug("session.getAcknowledgeMode(): {}", session.getAcknowledgeMode());
 
             String body = msg.getBody(String.class);
 
             AccountMessage am = this.objectMapper.readValue(body, AccountMessage.class);
-                if (am.getProfileId().equals("123")) {
-                    throw new RuntimeException("Invalid profile");
-                }
-           
+            if (am.getProfileId().equals("123")) {
+                throw new RuntimeException("Invalid profile");
+            }
+
             Account ae = new Account();
             ae.setBankName(am.getBankName());
             ae.setNumber(am.getNumber());
@@ -63,7 +64,7 @@ public class AccountConsumer {
                 ae.setBranch(new Branch(am.getBranch().getName(), am.getBranch().getCode(), am.getBranch().getLocation()));
             }
 
-            this.accountRepository.save(ae);
+            this.accountService.log(ae);
 
             msg.acknowledge();
         } catch (JsonProcessingException | JMSException e) {
