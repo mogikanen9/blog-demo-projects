@@ -3,6 +3,7 @@ package com.mogikanensoftware.azure.accountreceiver.service;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.Session;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,12 +37,15 @@ public class AccountConsumer {
         this.accountRepository = accountRepository;
     }
 
-    @JmsListener(destination = QUEUE_NAME/*, containerFactory = "jmsListenerContainerFactory"*/)
-    public void receiveMessage(Message msg) {
+    @JmsListener(destination = QUEUE_NAME, containerFactory = "myJmsListenerContainerFactory")
+    public void receiveMessage(Message msg, Session session) {
 
         log.info("Received message: {}", msg);
+        log.info("Received session: {}", session);      
         
         try {
+
+            log.info("session.getAcknowledgeMode(): {}", session.getAcknowledgeMode());
 
             String body = msg.getBody(String.class);
 
@@ -61,7 +65,7 @@ public class AccountConsumer {
 
             this.accountRepository.save(ae);
 
-            //msg.acknowledge();
+            msg.acknowledge();
         } catch (JsonProcessingException | JMSException e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e.getMessage(), e);
