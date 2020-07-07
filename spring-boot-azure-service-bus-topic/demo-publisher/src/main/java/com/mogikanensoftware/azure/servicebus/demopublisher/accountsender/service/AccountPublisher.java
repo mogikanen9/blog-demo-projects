@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AccountPublisher {
 
     @Value("${accountTopic.name:accountupdates}")
-    private String accountQueueName;
+    private String accountTopicName;
 
     private JmsTemplate jmsTemplate;
 
@@ -29,7 +29,7 @@ public class AccountPublisher {
     public void publish(Account account) throws Exception {
 
         String msg = this.mapper.writeValueAsString(account);
-        jmsTemplate.convertAndSend(this.accountQueueName, msg);
+        jmsTemplate.convertAndSend(this.accountTopicName, msg);
         log.info("message published {}", msg);
     }
 
