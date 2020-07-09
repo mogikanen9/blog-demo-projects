@@ -49,7 +49,8 @@ public class AccountConsumer {
 
             log.info("am received -> {}", am);
 
-            msg.acknowledge();
+            // no need - default is autoacknowledge
+            // msg.acknowledge();
         } catch (JsonProcessingException | JMSException e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e.getMessage(), e);
