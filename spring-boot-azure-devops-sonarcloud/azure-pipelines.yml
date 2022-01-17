@@ -10,7 +10,7 @@ jobs:
     steps:
     - task: Maven@3
       inputs:
-        mavenPomFile: '/spring-boot-azure-devops-sonarcloud/pom.xml'
+        mavenPomFile: $(System.DefaultWorkingDirectory)'/spring-boot-azure-devops-sonarcloud/pom.xml'
         javaHomeOption: 'JDKVersion'
         jdkVersionOption: '1.11'
         jdkArchitectureOption: 'x64'
