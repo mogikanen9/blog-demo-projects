@@ -11,4 +11,6 @@ jobs:
         javaHomeOption: 'JDKVersion'
         jdkVersionOption: '1.11'
         jdkArchitectureOption: 'x64'
-        goals: 'verify'
+        goals: 'verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar'
+      env: 
+        SONAR_TOKEN: $(MY_SONAR_TOKEN_VAR)  
