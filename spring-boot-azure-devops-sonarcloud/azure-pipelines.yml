@@ -3,7 +3,7 @@ trigger:
   - master
 
 jobs:
-  - job: Linux-with-Java11  
+  - job: Linux_with_Java11  
     pool:
       vmImage: 'Ubuntu-20.04'
   
